@@ -1,0 +1,153 @@
+---
+title: "Group project"
+subtitle: "Group Number?"
+author: 
+  - "Fynn Rievers"
+  - "Emma van Harten"
+  - "Sam Smits"
+  - "Giyanto ---"
+  - "Evi ---"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: readable
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    code_download: false
+---
+
+```{r setup, include = FALSE}
+options(max.print= 120,
+        width = 90,
+        tibble.width = 80)
+knitr::opts_chunk$set(echo= TRUE,
+                      cache=FALSE,
+                      prompt=FALSE,
+                      tidy="styler",
+                      comment=NA,
+                      message=FALSE,
+                      warning=TRUE)
+
+knitr::opts_knit$set(width=90)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+set.seed(42)
+```
+
+# Checklist {-}
+
+The submission includes the following.
+
+- [ ] RMD document where it's clear what is the code that corresponds to each question. 
+- [ ] Dataset
+- [ ] html/PDF document with the following
+    - [ ] Numbered questions and answers with text and all the necessary code.
+    - [ ] Subtitle indicates the group number 
+    - [ ] Name of all group members
+    - [ ] Details of specification of the work done by group members (e.g., who found the data, who did the pre-processing, who answered which questions, etc).
+    - [ ] Statement of technology. Did you use any AI tools? How?
+
+
+# Group project {-}
+
+For the project, we use the following packages:
+
+```{r, message = FALSE}
+library(dplyr)
+library(brms)
+library(ggplot2)
+library(tidyr)
+```
+
+## 1. Dataset Selection (0.5pt)
+Select a dataset with clusters such as schools, regions, or people with multiple observations per individual. (From for example, https://www.kaggle.com/) It would be a good idea to choose a smallish dataset (not too many rows, e.g., less than 1000) or subset it so that fitting the models doesn't take too long. 
+
+a. Describe the dataset with a couple of short sentences. What was its intended use? Are there papers that reference it? Provide information on how to obtain the dataset, including its source and any necessary preprocessing steps/feature engineering.
+
+
+<!-- DESCRIBE IT BELOW -->
+
+```{r}
+# load the data and preprocessing steps go here
+# 
+```
+
+b. Report the number of observations, columns (with their meaning) and their data types. Indicate clearly what you will use as dependent variable/label. 
+
+<!-- REPORT IT BELOW -->
+
+## 2. Split the data and tranform columns as necessary. (0.5pt)
+ Split the data into training (80%) and test set (80%). Transform the columns if necessary.
+
+## 3. Model Exploration (3pt)
+
+a. Fit multiple appropriate models to the dataset (as many models as there are members in the group, with a minimum of two models). Models might vary in the multilevel structure, informativeness of their priors (but not just trivial changes), model of the data/likelihood, etc. (I recommend not to use no pooling models since they tend to take a long time and it's very hard to assign good priors).
+
+<!-- message = FALSE, results = "hide" prevents displaying output, if you need to show something create another chunk of code -->
+```{r, message = FALSE, results = "hide"}
+# models go here
+
+```
+
+b. Explain each model and describe its structure (what they assume about potential population-
+level or group-level effects), and the type of priors used. 
+
+<!-- EXPLAIN BELOW, REFER TO EACH MODEL -->
+
+## 4. Model checking (3pt)
+
+a. Perform a prior sensitivity analysis for each model and modify the model if appropriate. Justify.
+
+```{r}
+
+```
+<!-- EXPLAIN CONCLUSIONS AND WHETHER MODELS ARE KEPT, MODIFIED  -->
+
+b. Conduct posterior predictive checks for each model to assess how well they fit the data.
+Explain what you conclude.
+
+```{r}
+
+```
+
+<!-- EXPLAIN CONCLUSIONS -->
+
+## 5. Model Comparison (1.5pt)
+
+a. Use k-fold cross-validation to compare the models.
+
+```{r}
+
+```
+b. Determine the best model based on predictive accuracy and justify your decision.
+
+<!-- DECISION -->
+
+
+## 6. Interpretation of Important Parameters (1.5pt)
+
+Choose one of the best models and interpret its most important parameters.
+
+<!-- INTERPRETATION AND CODE GOES HERE -->
+
+## 7. Report a loss function on the test set (Optional for bonus 0.5 to 1pt, depending on if you use RMSE or another function).
+
+Report RMSE or other loss (or utility) function on the test set. (Transform it back if necessary).
+
+
+# Contributions of each member 
+
+- Fynn --> descriptives of dataset
+- Emma -->
+- Sam -->
+- Giyanto --> pre-processing of dataset
+- Evi -->
+- Everyone --> model exploration
+
+# Statement of technology
+
+
+# References
+
+<!-- Complete if necessary -->
+
