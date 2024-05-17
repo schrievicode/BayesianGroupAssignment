@@ -165,7 +165,7 @@ summary(life_expectancy)
 ```
 b. Report the number of observations, columns (with their meaning) and their data types. Indicate clearly what you will use as dependent variable/label. 
 
-This dataset contains information about 179 different countries, which each row containing information about one country for one year. As stated previously, we will only look at data from 2015, therefore having 179 rather than 2864 rows. 
+This dataset contains information about 179 different countries over 16 years, which each row containing information about one country for one year. As stated previously, we will only look at data from 2015, therefore having 179 rather than 2864 rows. 
 As for columns, the dataset contains the following: Region (distributed in nine different regions, namely: Africa, Asia, Central America and Carribean, EU, Middle East, Oceania, North America, Rest of Europe, South America. 
 Then, the dataset contains a column indicating year, which we remove after filtering to 2015-data only. 
 Next are Infant deaths (Infant_deaths), deaths under five years old (Under_five_deaths), and adult deaths (Adult_mortality) per 1000 people respectively. 
