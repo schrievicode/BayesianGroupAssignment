@@ -64,15 +64,116 @@ Select a dataset with clusters such as schools, regions, or people with multiple
 
 a. Describe the dataset with a couple of short sentences. What was its intended use? Are there papers that reference it? Provide information on how to obtain the dataset, including its source and any necessary preprocessing steps/feature engineering.
 
+The dataset "Life Expectancy (WHO) Fixed" by Lasha (2023) contains a multitude of variables which may affect an individuals' life expectancies per country. It contains variables such as average alcohol consumption, BMI, or GDP per capita, vaccination status for different diseases or years of schooling, among others. A clustering variable can also be found, as the countries are grouped in regions. This dataset contains values ranging from the years 2000 to 2015; we will focus only on the year 2015. The dataset we used is a cleaned version of the original dataset "Life Expectancy (WHO)" by user KumarRajarshi (2018), which contained some outdated or inaccurate information. It also contained some missing values which have been imputed either through the means of using a three year average of a given variable; if said variable was missing for all years, the region average of that variable was computed. Furthermore, information about life expectancy, BMI and GDP per capita has been updated as per World Bank data. Information about vaccination status has been collected through other public WHO datasets. Lastly, some countries with an exceptionally high amount of missing variables have been removed entirely from the dataset.
+
+Note should be taken that the dataset contains two variable, once whether a country is developing or not, and separately whether a country is developed or not. Whether countries were developed or developing appears to have been inferred based on Gross National Income per capita. We have converged this variable into a singular dummy variable.
 
 <!-- DESCRIBE IT BELOW -->
 
 ```{r}
 # load the data and preprocessing steps go here
-# 
+# Setting work directory to current folder
+filepath = rstudioapi::getSourceEditorContext()$path
+dirpath  = dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(dirpath)
+
+life_expectancy <- read.csv("Life-Expectancy-Data-Updated.csv")
+
+# quick look at the data
+print(summary(life_expectancy))
 ```
 
+```{r}
+# Check for NA's per variable in the year 2015 and create a summary table
+na_summary<- life_expectancy %>%
+  filter(Year == 2015) %>%
+  summarise_all(~ mean(is.na(.)) * 100) %>%
+  gather(key = "Variable", value = "NA_Percentage") %>%
+  arrange(desc(NA_Percentage))
+print(na_summary)
+```
+```{r}
+#no missing values
+
+
+# Filter to Year == 2015 so we only deal with cross-sectional data. After that we can drop Year variable
+
+life_expectancy <- life_expectancy %>%
+  filter(Year == 2015) %>%
+  select(-Year)
+
+
+# Economy_status_Developing is redundant, since Economy_status_Developed entails all its information
+life_expectancy <- life_expectancy %>%
+  select(-Economy_status_Developing)
+
+
+print(summary(life_expectancy))
+```
+
+```{r}
+# Don't see any strange data/outliers
+
+
+
+##### Next step is to scale numerical values and convert categorical variables to factors
+
+# Ensure categorical variables are treated as a categorical variable
+life_expectancy <- life_expectancy %>%
+  mutate(
+    Country = as.factor(Country),
+    Region = as.factor(Region),
+    Economy_status_Developed = as.factor(Economy_status_Developed)
+  )
+
+
+# Identify numeric and categorical variables
+numeric_vars <- life_expectancy %>%
+  select_if(is.numeric) %>%
+  names()
+
+
+# Remove 'Life_expectancy' from the numeric variables to avoid scaling it
+numeric_vars <- setdiff(numeric_vars, "Life_expectancy")
+
+
+
+# Identify the updated list of categorical variables
+categorical_vars <- life_expectancy %>%
+  select_if(is.factor) %>%
+  names()
+
+
+# Scale numeric variables 
+life_expectancy <- life_expectancy %>%
+  mutate(across(all_of(numeric_vars), ~ scale(.) %>% as.vector()))  # (scale() scales each numeric variable by substracting the mean and dividing by the standard deviation)
+
+
+# Convert categorical variables to factors
+life_expectancy<- life_expectancy %>%
+  mutate(across(all_of(categorical_vars), as.factor))
+
+# Check the structure of the preprocessed data
+str(life_expectancy)
+```
+
+```{r}
+# Structure seems fine
+
+# Summary of the preprocessed data
+summary(life_expectancy)
+```
 b. Report the number of observations, columns (with their meaning) and their data types. Indicate clearly what you will use as dependent variable/label. 
+
+This dataset contains information about 179 different countries, which each row containing information about one country for one year. As stated previously, we will only look at data from 2015, therefore having 179 rather than 2864 rows. 
+As for columns, the dataset contains the following: Region (distributed in nine different regions, namely: Africa, Asia, Central America and Carribean, EU, Middle East, Oceania, North America, Rest of Europe, South America. 
+Then, the dataset contains a column indicating year, which we remove after filtering to 2015-data only. 
+Next are Infant deaths (Infant_deaths), deaths under five years old (Under_five_deaths), and adult deaths (Adult_mortality) per 1000 people respectively. 
+The variable Alcohol_consumption contains the consumption of alcohol per capita for individuals >=15 years old in liters. The variables Hepatitis_B, Measles, Polio, and Diphteria contain the percentage of individuals vaccinated against the respective disease. Meanwhile, the variable Incidents_HIV measures the amount of occurences of HIV per 1000 people for individuals aged 15-49.
+The BMI is covered through the column of the same name, while the variables "Thinness_ten_nineteen_years" and "Thinness_five_nine_years" contain the prevalence of people in the specified age intervals who have a BMI of 2 standard deviations below the median.
+The variables GDP_per_capita and Population_mln (=million) are explained through their names.
+The variable Schooling contains the average amount of years spent in school by people aged 25+, while the columns beginning with "Economy_stats_xyz" contain the dummy variable whether a country is developing or developed, which we formed into a singular dummy variable with developed = 1 and developing = 0.
+Lastly, the variable Life_expectancy contains the average life expectancy in the country (not split by sex). This will be out dependent variable.
 
 <!-- REPORT IT BELOW -->
 
@@ -149,5 +250,5 @@ Report RMSE or other loss (or utility) function on the test set. (Transform it b
 
 # References
 
-<!-- Complete if necessary -->
-
+- Lasha. (2023). Life expectancy (WHO) fixed [Dataset]. In Kaggle. https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/code
+- Rajarshi, K. [KumarRajarshi]. (2018). Life expectancy (WHO) [Dataset]. In Kaggle. https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who/code?datasetId=12603&sortBy=relevance
