@@ -380,7 +380,6 @@ Choose one of the best models and interpret its most important parameters.
 Report RMSE or other loss (or utility) function on the test set.
 (Transform it back if necessary).
 
-
 ```{r}
 #loss function RMSE
 rmse <- function(y, yrep){
@@ -395,14 +394,19 @@ rmse <- function(y, yrep){
   sqrt(mean((yrep_mean - y)^2))
 }
 
-# Model 1
 
-#predictions
+#predictions with RMSE
+# Model 1
 pred_m.1 <- posterior_predict(m.1, newdata = life_expectancy_test)
-print(rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.1))
+print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.1)))
+
+
+
+#predictions with MAE
+# Model1
+print(paste("MAE Model 1: ", mean(abs(pred_m.1, life_expectancy_test$Life_expectancy))))
 
 ``` 
-
 # Contributions of each member
 
 -   Fynn --\> descriptives of dataset
