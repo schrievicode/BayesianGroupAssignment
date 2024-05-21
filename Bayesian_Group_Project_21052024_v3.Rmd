@@ -60,8 +60,6 @@ library(brms)
 library(ggplot2)
 library(tidyr)
 library(future)
-
-#add_GH
 library(priorsense)
 options(mc.cores = parallel::detectCores()) # paralellize if possible
 options(brms.file_refit = "on_change") # save the files if the model has changed
