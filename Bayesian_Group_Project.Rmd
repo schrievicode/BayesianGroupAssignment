@@ -169,7 +169,7 @@ This dataset contains information about 179 different countries over 16 years, w
 As for columns, the dataset contains the following: Region (distributed in nine different regions, namely: Africa, Asia, Central America and Carribean, EU, Middle East, Oceania, North America, Rest of Europe, South America. 
 Then, the dataset contains a column indicating year, which we remove after filtering to 2015-data only. 
 Next are Infant deaths (Infant_deaths), deaths under five years old (Under_five_deaths), and adult deaths (Adult_mortality) per 1000 people respectively. 
-The variable Alcohol_consumption contains the consumption of alcohol per capita for individuals >=15 years old in liters. The variables Hepatitis_B, Measles, Polio, and Diphteria contain the percentage of individuals vaccinated against the respective disease. Meanwhile, the variable Incidents_HIV measures the amount of occurences of HIV per 1000 people for individuals aged 15-49.
+The variable Alcohol_consumption contains the consumption of alcohol per capita for individuals >=15 years old in liters per year. The variables Hepatitis_B, Measles, Polio, and Diphteria contain the percentage of individuals vaccinated against the respective disease. Meanwhile, the variable Incidents_HIV measures the amount of occurences of HIV per 1000 people for individuals aged 15-49.
 The BMI is covered through the column of the same name, while the variables "Thinness_ten_nineteen_years" and "Thinness_five_nine_years" contain the prevalence of people in the specified age intervals who have a BMI of 2 standard deviations below the median.
 The variables GDP_per_capita and Population_mln (=million) are explained through their names.
 The variable Schooling contains the average amount of years spent in school by people aged 25+, while the columns beginning with "Economy_stats_xyz" contain the dummy variable whether a country is developing or developed, which we formed into a singular dummy variable with developed = 1 and developing = 0.
@@ -179,6 +179,19 @@ Lastly, the variable Life_expectancy contains the average life expectancy in the
 
 ## 2. Split the data and tranform columns as necessary. (0.5pt)
  Split the data into training (80%) and test set (80%). Transform the columns if necessary.
+
+```{r}
+#setting seed for reproducability
+set.seed(123)
+
+# assigning 80% to training set
+life_expectancy_train <- slice_sample(life_expectancy, prop = 0.8)
+
+# assigning the other 20% to the test set
+life_expectancy_test <- anti_join(life_expectancy, life_expectancy_train)
+
+
+```
 
 ## 3. Model Exploration (3pt)
 
