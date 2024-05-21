@@ -404,7 +404,7 @@ print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yre
 
 #predictions with MAE
 # Model1
-print(paste("MAE Model 1: ", mean(abs(pred_m.1, life_expectancy_test$Life_expectancy))))
+print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expectancy))))
 
 ``` 
 # Contributions of each member
