@@ -5,7 +5,7 @@ author:
   - "Fynn Rievers"
   - "Emma van Harten"
   - "Sam Smits"
-  - "Giyanto ---"
+  - "Giyanto Goossens"
   - "Evi ---"
 date: "`r Sys.Date()`"
 output:
@@ -237,13 +237,13 @@ a.  Fit multiple appropriate models to the dataset (as many models as there are 
 #######################################################
 
 # Define the formula for the model
-formula.giyanto <- bf(
+formula.m1 <- bf(
   Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
 )
 
 
 #setting up the priors using Gelman et al's default priors
-get_prior(formula.giyanto, data = life_expectancy)
+get_prior(formula.m1, data = life_expectancy)
 
 #alpha
 print(c(mean(life_expectancy_train$Life_expectancy), 2.5*sd(life_expectancy_train$Life_expectancy)))
@@ -259,7 +259,7 @@ GelmanEtAl <- c(
 
 
 
-m.1 <- brm(formula.giyanto, 
+m.1 <- brm(formula.m1, 
                data = life_expectancy_train,
                family = gaussian(), 
                prior = GelmanEtAl, 
