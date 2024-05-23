@@ -294,6 +294,28 @@ m.2 <- brm(formula.m1,
 
 m.2
 
+###################################################################################################################
+#-- Model 3:  Random intercept for Region | Informative priors for shaping disease-related coeffiencts towards negative impact (Evi) --#
+###################################################################################################################
+
+formula.m1 <- bf(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + 
+  Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + 
+  Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + 
+  Economy_status_Developed + (1 | Region)
+)
+
+informative_priors <- set_prior("normal(-3, 0.5)", class = "b", coef = c("Hepatitis_B", "Measles", "Polio", "Diphtheria", "Incidents_HIV") 
+
+m.3 <- brm(
+  formula = formula.m1,
+  data = life_expectancy_train,
+  family = gaussian(), 
+  prior = informative_priors,  
+  seed = 123
+)
+
+m.3
 ```
 
 b.  Explain each model and describe its structure (what they assume about potential population- level or group-level effects), and the type of priors used.
