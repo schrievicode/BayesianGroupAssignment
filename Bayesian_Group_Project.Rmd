@@ -337,6 +337,31 @@ m.4 <- brm(formula.m4,
 
 m.4
 
+###################################################################################
+#-- Model 5:  Correlated varying intercept & varing slopes model (Emma) --#
+###################################################################################
+# Define the formula for the model
+formula.m5 <- bf(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita | Region)
+)
+
+prior_info_m5 <- get_prior(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita | Region),
+  data = life_expectancy_train)
+
+gelman_priors_m5 <- c(GelmanEtAl, prior(lkj(2), class = cor))
+
+m.5 <- brm(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita | Region),
+  data = life_expectancy_train,
+  prior = gelman_priors_m5,
+  control = list(adapt_delta = .95),
+  seed = 123,
+  file = "fits/Bayesian_Group_Assignment_m5"
+)
+
+m.5
+
 ```
 
 b.  Explain each model and describe its structure (what they assume about potential population- level or group-level effects), and the type of priors used.
@@ -393,6 +418,12 @@ The priors used in this model are the same as explored in the first model.
 
 ### Model 5:
 
+This model also predicts life expectancy based on several predicters used in the dataset, with varying intercepts and slopes for GDP_per_capita by Region. The model allows the intercept and slope for GDP_per_capita to vary by region. This means that each region can have its own baseline life expectancy and its own effect of GDP_per_capital on life expectancy. 
+
+There is a negative correlation which suggests that regions with higher baseline life expectancy tend to have a weaker relationship between GDP_per_capita and life expectancy, and vice versa. However, the confidence interval (-0.87 to 0.57) is quite wide. This indicates that there is some uncertainty about the direction and strenght of this correlation between regions and GDP_per_capita.
+
+The priors used in this model are the Gelman et al, but the correlation parameter is added.
+
 ## 4. Model checking (3pt)
 
 a.  Perform a prior sensitivity analysis for each model and modify the model if appropriate. Justify.
@@ -402,6 +433,7 @@ powerscale_sensitivity(m.1)
 powerscale_sensitivity(m.2)
 powerscale_sensitivity(m.3)
 powerscale_sensitivity(m.4)
+powerscale_sensitivity(m.5)
 ```
 
 <!-- EXPLAIN CONCLUSIONS AND WHETHER MODELS ARE KEPT, MODIFIED  -->
@@ -445,6 +477,11 @@ print(pp_check(m.3, type = "stat_2d"))
 print(pp_check(m.4, type = "intervals"))
 print(pp_check(m.4, ndraws = 200))
 print(pp_check(m.4, type = "stat_2d"))
+
+# Model 5: Correlated varying intercept & varing slopes model (Emma)
+print(pp_check(m.5, type = "intervals"))
+print(pp_check(m.5, ndraws = 200))
+print(pp_check(m.5, type = "stat_2d"))
 ```
 
 <!-- EXPLAIN CONCLUSIONS -->
@@ -484,7 +521,7 @@ kf.m.2
 
 # Model 3 
 k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
-kf.m.3 <- kfold(m.2, chains = 1, folds = k, save_fits = T)
+kf.m.3 <- kfold(m.3, chains = 1, folds = k, save_fits = T)
 kf.m.3
 
 # Model 4
@@ -492,12 +529,17 @@ kf.m.4 <- kfold(m.4, chains = 1, folds = k, save_fits = T)
 kf.m.4
 
 plan(sequential)
+
+# Model 5
+k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
+kf.m.5 <- kfold(m.5, chains = 1, folds = k, save_fits = T)
+kf.m.5
 ```
 
 b.  Determine the best model based on predictive accuracy and justify your decision.
 
 ```{r}
-loo_compare(kf.m.1,kf.m.2, kf.m.4) #, kf.m.3, , kf.m.5 )
+loo_compare(kf.m.1,kf.m.2, kf.m.3, kf.m.4, kf.m.5)
 ```
 
 So far, when comparing the first two models, we can see that the model seems to offer a slightly better performance without overfitting the data yet; hence it should be the preferred option thus far.
@@ -547,6 +589,10 @@ print(paste("RMSE Model 3: ", rmse(y = life_expectancy_test$Life_expectancy, yre
 pred_m.4 <- posterior_predict(m.4, newdata = life_expectancy_test)
 print(paste("RMSE Model 4: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.4)))
 
+# Model 5
+pred_m.5 <- posterior_predict(m.5, newdata = life_expectancy_test)
+print(paste("RMSE Model 5: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.5)))
+
 #predictions with MAE
 # Model 1
 print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expectancy))))
@@ -560,11 +606,14 @@ print(paste("MAE Model 3: ", mean(abs(pred_m.3 - life_expectancy_test$Life_expec
 # Model 4
 print(paste("MAE Model 4: ", mean(abs(pred_m.4 - life_expectancy_test$Life_expectancy))))
 
+# Model 5
+print(paste("MAE Model 5: ", mean(abs(pred_m.5 - life_expectancy_test$Life_expectancy))))
+
 ``` 
 # Contributions of each member
 
 -   Fynn --\> descriptives of dataset, second model and all code relating to it
--   Emma --\>
+-   Emma --\> Creation of the fifth model and the explanations and conclusions in relation to this model
 -   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this. 
 -   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, and RMSE function (his will to voluntarily work on this project can not be overstated -Fynn)
 -   Evi --\> Buildig model 3 and providing explanations on its chosen structure. As well as interpretation of its outputs. 
