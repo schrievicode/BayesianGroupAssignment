@@ -295,7 +295,7 @@ m.2 <- brm(formula.m1,
 m.2
 
 ###################################################################################################################
-#-- Model 3:  Random intercept for Region | Informative priors for shaping disease-related coeffiencts towards negative impact (Evi) --#
+#-- Model 3: Random intercept for Region | Informative priors for shaping disease-related coefficients towards negative impact (Evi) --#
 ###################################################################################################################
 
 formula.m1 <- bf(
