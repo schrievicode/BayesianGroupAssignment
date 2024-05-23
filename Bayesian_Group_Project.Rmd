@@ -377,6 +377,10 @@ For the other variables in the dataset , there are definitely still varying degr
 
 ### Model 3:
 
+This model predicts life-expectancy on the basis of the same predictors as previously established models. The model varies in its approach to the priors used for training the model.  
+
+Horseshoe priors are Bayesian prior distributions that allow for sparsity in regression coefficients by allowing some coefficients to be close to zero while allowing others to have large magnitudes. The regularization terms included in horseshoe priors encompass a global shrinkage component, which applies a level of shrinkage to all coefficients, and a slab component, which acts as a heavy-tailed distribution allowing some coefficients to remain large despite the global shrinkage, thereby promoting sparsity in the model. The scale_global parameter sets the scale of the global shrinkage component of the prior. The scale_slab parameter sets the scale of the slab component of the prior. A larger scale (like 10) allows for a wider range of plausible coefficient values.  
+
 ### Model 4:
 
 As with the first, second and third model, this model predicts the life expectancy using the different predictors in the dataset.The model furthermore incorporates a random intercept for regions to account for unobserved heterogeneity across different regions. Additionally, a varying slope for the different regions is added, as the effect of GDP per capita on life expectancy could be different accross the different regeions. 
@@ -394,6 +398,7 @@ a.  Perform a prior sensitivity analysis for each model and modify the model if 
 ```{r}
 powerscale_sensitivity(m.1)
 powerscale_sensitivity(m.2)
+powerscale_sensitivity(m.3)
 powerscale_sensitivity(m.4)
 ```
 
