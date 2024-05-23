@@ -1,12 +1,12 @@
 ---
 title: "Group project"
-subtitle: "Group Number?"
+subtitle: "Group 11"
 author: 
   - "Fynn Rievers"
   - "Emma van Harten"
   - "Sam Smits"
-  - "Giyanto ---"
-  - "Evi ---"
+  - "Giyanto Goossens"
+  - "Evi Janssen"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -15,6 +15,9 @@ output:
     toc_depth: 4
     toc_float: true
     code_download: false
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
 ```{r setup, include = FALSE}
@@ -34,21 +37,20 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 set.seed(42)
 ```
 
-# Checklist {-}
+# Checklist {.unnumbered}
 
 The submission includes the following.
 
-- [ ] RMD document where it's clear what is the code that corresponds to each question. 
-- [ ] Dataset
-- [ ] html/PDF document with the following
-    - [ ] Numbered questions and answers with text and all the necessary code.
-    - [ ] Subtitle indicates the group number 
-    - [ ] Name of all group members
-    - [ ] Details of specification of the work done by group members (e.g., who found the data, who did the pre-processing, who answered which questions, etc).
-    - [ ] Statement of technology. Did you use any AI tools? How?
+-   [ ] RMD document where it's clear what is the code that corresponds to each question.
+-   [ ] Dataset
+-   [ ] html/PDF document with the following
+    -   [ ] Numbered questions and answers with text and all the necessary code.
+    -   [ ] Subtitle indicates the group number
+    -   [ ] Name of all group members
+    -   [ ] Details of specification of the work done by group members (e.g., who found the data, who did the pre-processing, who answered which questions, etc).
+    -   [ ] Statement of technology. Did you use any AI tools? How?
 
-
-# Group project {-}
+# Group project {.unnumbered}
 
 For the project, we use the following packages:
 
@@ -57,16 +59,35 @@ library(dplyr)
 library(brms)
 library(ggplot2)
 library(tidyr)
+library(future)
+library(priorsense)
+options(mc.cores = parallel::detectCores()) # paralellize if possible
+options(brms.file_refit = "on_change") # save the files if the model has changed
+#nice plotting theme:
+theme_set(theme_linedraw() +
+            theme(panel.grid = element_blank()))
 ```
 
 ## 1. Dataset Selection (0.5pt)
-Select a dataset with clusters such as schools, regions, or people with multiple observations per individual. (From for example, https://www.kaggle.com/) It would be a good idea to choose a smallish dataset (not too many rows, e.g., less than 1000) or subset it so that fitting the models doesn't take too long. 
 
-a. Describe the dataset with a couple of short sentences. What was its intended use? Are there papers that reference it? Provide information on how to obtain the dataset, including its source and any necessary preprocessing steps/feature engineering.
+Select a dataset with clusters such as schools, regions, or people with multiple observations per individual.
+(From for example, <https://www.kaggle.com/>) It would be a good idea to choose a smallish dataset (not too many rows, e.g., less than 1000) or subset it so that fitting the models doesn't take too long.
 
-The dataset "Life Expectancy (WHO) Fixed" by Lasha (2023) contains a multitude of variables which may affect an individuals' life expectancies per country. It contains variables such as average alcohol consumption, BMI, or GDP per capita, vaccination status for different diseases or years of schooling, among others. A clustering variable can also be found, as the countries are grouped in regions. This dataset contains values ranging from the years 2000 to 2015; we will focus only on the year 2015. The dataset we used is a cleaned version of the original dataset "Life Expectancy (WHO)" by user KumarRajarshi (2018), which contained some outdated or inaccurate information. It also contained some missing values which have been imputed either through the means of using a three year average of a given variable; if said variable was missing for all years, the region average of that variable was computed. Furthermore, information about life expectancy, BMI and GDP per capita has been updated as per World Bank data. Information about vaccination status has been collected through other public WHO datasets. Lastly, some countries with an exceptionally high amount of missing variables have been removed entirely from the dataset.
+a.  Describe the dataset with a couple of short sentences. What was its intended use? Are there papers that reference it? Provide information on how to obtain the dataset, including its source and any necessary preprocessing steps/feature engineering.
 
-Note should be taken that the dataset contains two variable, once whether a country is developing or not, and separately whether a country is developed or not. Whether countries were developed or developing appears to have been inferred based on Gross National Income per capita. We have converged this variable into a singular dummy variable.
+The dataset "Life Expectancy (WHO) Fixed" by Lasha (2023) contains a multitude of variables which may affect an individuals' life expectancies per country.
+It contains variables such as average alcohol consumption, BMI, or GDP per capita, vaccination status for different diseases or years of schooling, among others.
+A clustering variable can also be found, as the countries are grouped in regions.
+This dataset contains values ranging from the years 2000 to 2015; we will focus only on the year 2015.
+The dataset we used is a cleaned version of the original dataset "Life Expectancy (WHO)" by user KumarRajarshi (2018), which contained some outdated or inaccurate information.
+It also contained some missing values which have been imputed either through the means of using a three year average of a given variable; if said variable was missing for all years, the region average of that variable was computed.
+Furthermore, information about life expectancy, BMI and GDP per capita has been updated as per World Bank data.
+Information about vaccination status has been collected through other public WHO datasets.
+Lastly, some countries with an exceptionally high amount of missing variables have been removed entirely from the dataset.
+
+Note should be taken that the dataset contains two variable, once whether a country is developing or not, and separately whether a country is developed or not.
+Whether countries were developed or developing appears to have been inferred based on Gross National Income per capita.
+We have converged this variable into a singular dummy variable.
 
 <!-- DESCRIBE IT BELOW -->
 
@@ -92,6 +113,7 @@ na_summary<- life_expectancy %>%
   arrange(desc(NA_Percentage))
 print(na_summary)
 ```
+
 ```{r}
 #no missing values
 
@@ -163,22 +185,27 @@ str(life_expectancy)
 # Summary of the preprocessed data
 summary(life_expectancy)
 ```
-b. Report the number of observations, columns (with their meaning) and their data types. Indicate clearly what you will use as dependent variable/label. 
 
-This dataset contains information about 179 different countries over 16 years, which each row containing information about one country for one year. As stated previously, we will only look at data from 2015, therefore having 179 rather than 2864 rows. 
-As for columns, the dataset contains the following: Region (distributed in nine different regions, namely: Africa, Asia, Central America and Carribean, EU, Middle East, Oceania, North America, Rest of Europe, South America. 
-Then, the dataset contains a column indicating year, which we remove after filtering to 2015-data only. 
-Next are Infant deaths (Infant_deaths), deaths under five years old (Under_five_deaths), and adult deaths (Adult_mortality) per 1000 people respectively. 
-The variable Alcohol_consumption contains the consumption of alcohol per capita for individuals >=15 years old in liters per year. The variables Hepatitis_B, Measles, Polio, and Diphteria contain the percentage of individuals vaccinated against the respective disease. Meanwhile, the variable Incidents_HIV measures the amount of occurences of HIV per 1000 people for individuals aged 15-49.
+b.  Report the number of observations, columns (with their meaning) and their data types. Indicate clearly what you will use as dependent variable/label.
+
+This dataset contains information about 179 different countries over 16 years, which each row containing information about one country for one year.
+As stated previously, we will only look at data from 2015, therefore having 179 rather than 2864 rows.
+As for columns, the dataset contains the following: Region (distributed in nine different regions, namely: Africa, Asia, Central America and Carribean, EU, Middle East, Oceania, North America, Rest of Europe, South America. Then, the dataset contains a column indicating year, which we remove after filtering to 2015-data only. Next are Infant deaths (Infant_deaths), deaths under five years old (Under_five_deaths), and adult deaths (Adult_mortality) per 1000 people respectively.
+The variable Alcohol_consumption contains the consumption of alcohol per capita for individuals \>=15 years old in liters.
+The variables Hepatitis_B, Measles, Polio, and Diphteria contain the percentage of individuals vaccinated against the respective disease.
+Meanwhile, the variable Incidents_HIV measures the amount of occurences of HIV per 1000 people for individuals aged 15-49.
 The BMI is covered through the column of the same name, while the variables "Thinness_ten_nineteen_years" and "Thinness_five_nine_years" contain the prevalence of people in the specified age intervals who have a BMI of 2 standard deviations below the median.
 The variables GDP_per_capita and Population_mln (=million) are explained through their names.
 The variable Schooling contains the average amount of years spent in school by people aged 25+, while the columns beginning with "Economy_stats_xyz" contain the dummy variable whether a country is developing or developed, which we formed into a singular dummy variable with developed = 1 and developing = 0.
-Lastly, the variable Life_expectancy contains the average life expectancy in the country (not split by sex). This will be out dependent variable.
+Lastly, the variable Life_expectancy contains the average life expectancy in the country (not split by sex).
+This will be out dependent variable.
 
 <!-- REPORT IT BELOW -->
 
 ## 2. Split the data and tranform columns as necessary. (0.5pt)
- Split the data into training (80%) and test set (80%). Transform the columns if necessary.
+
+Split the data into training (80%) and test set (80%).
+Transform the columns if necessary.
 
 ```{r}
 #setting seed for reproducability
@@ -195,48 +222,207 @@ life_expectancy_test <- anti_join(life_expectancy, life_expectancy_train)
 
 ## 3. Model Exploration (3pt)
 
-a. Fit multiple appropriate models to the dataset (as many models as there are members in the group, with a minimum of two models). Models might vary in the multilevel structure, informativeness of their priors (but not just trivial changes), model of the data/likelihood, etc. (I recommend not to use no pooling models since they tend to take a long time and it's very hard to assign good priors).
+a.  Fit multiple appropriate models to the dataset (as many models as there are members in the group, with a minimum of two models). Models might vary in the multilevel structure, informativeness of their priors (but not just trivial changes), model of the data/likelihood, etc. (I recommend not to use no pooling models since they tend to take a long time and it's very hard to assign good priors).
 
 <!-- message = FALSE, results = "hide" prevents displaying output, if you need to show something create another chunk of code -->
+
 ```{r, message = FALSE, results = "hide"}
-# models go here
+#######################################################
+#-- Model 1:  Random intercept for Region (Giyanto) --#
+#######################################################
+
+# Define the formula for the model
+formula.m1 <- bf(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
+)
+
+
+#setting up the priors using Gelman et al's default priors
+get_prior(formula.m1, data = life_expectancy)
+
+#alpha
+print(c(mean(life_expectancy_train$Life_expectancy), 2.5*sd(life_expectancy_train$Life_expectancy)))
+#sigma
+print(1/sd(life_expectancy_train$Life_expectancy))
+
+
+GelmanEtAl <- c(
+  prior(normal(71.37, 19.92), class = "Intercept"),  
+  prior(normal(0, 19.92), class = "b"),             
+  prior(exponential(0.1255), class = "sigma")       
+)
+
+
+
+m.1 <- brm(formula.m1, 
+               data = life_expectancy_train,
+               family = gaussian(), 
+               prior = GelmanEtAl, 
+               seed = 123,
+               file = "fits/Bayesian_Group_Assignment_m1")
+
+m.1
+
+###################################################################################
+#-- Model 2:  Random intercept for Region | Priors based on previous EDA (Fynn) --#
+###################################################################################
+
+# Updating formula for this model
+formula.m1 <- bf(
+  Life_expectancy ~ Alcohol_consumption + Adult_mortality + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
+)
+
+# Setting up priors based on previously conducted EDA on this dataset
+InformedPriors <- c(
+  prior(normal(71.37, 19.92), class = "Intercept"),  
+  prior(normal(0, 19.92), class = "b"),
+  prior(normal(-0.8, 5), class = "b", coef="Adult_mortality"),
+  prior(normal(0, 5), class = "b", coef="Schooling"),
+  prior(normal(0, 5), class = "b", coef="BMI"),
+  prior(normal(0, 30), class = "b", coef="Population_mln"),
+  prior(exponential(0.1255), class = "sigma")       
+)
+
+
+
+m.2 <- brm(formula.m1, 
+               data = life_expectancy_train,
+               family = gaussian(), 
+               prior = InformedPriors, 
+               seed = 123,
+               file = "fits/Bayesian_Group_Assignment_m2")
+
+m.2
 
 ```
 
-b. Explain each model and describe its structure (what they assume about potential population-
-level or group-level effects), and the type of priors used. 
+b.  Explain each model and describe its structure (what they assume about potential population- level or group-level effects), and the type of priors used.
 
 <!-- EXPLAIN BELOW, REFER TO EACH MODEL -->
 
+### Model 1: Random Intercept for Region (Giyanto)
+
+This model predicts life expectancy using multiple predictors, including alcohol consumption, hepatitis B vaccination coverage, measles vaccination coverage, body mass index (BMI), polio vaccination coverage, diphtheria vaccination coverage, HIV incidence, GDP per capita, population size, thinness among ten to nineteen-year-olds, thinness among five to nine-year-olds, schooling, and whether the economy is developed.
+The model incorporates a random intercept for regions to account for unobserved heterogeneity across different regions.
+
+The fixed effects (population-level effects) in this model represent the average impact of each predictor on life expectancy across all regions.
+By including a random intercept for regions, the model allows the baseline life expectancy to vary between different regions, capturing regional differences that are not explained by the fixed effects.
+
+The priors used in this model are based on recommendations by Gelman et al.
+The prior for the intercept (α) is a normal distribution with a mean of 71.37 and a standard deviation of 19.92, reflecting the average life expectancy across all regions according to the data distribution.
+The prior for the fixed effects coefficients (β) is also a normal distribution with a mean of 0 and a standard deviation of 19.92, which serves as a weakly informative prior.
+This allows the data to dominate the estimates while providing some regularization.
+The prior for the residual standard deviation (σ) follows an exponential distribution with a rate of 0.1255, suggesting a relatively small standard deviation and encouraging the model to fit the data closely.
+
+### Model 2:
+The second model builds on the first one by keeping most of the Gelman et al. priors, but using information of previous studies on this dataset in order to learn which features are more/less strongly correlated with our outcome variable, Life expectancy. I did this in the following ways: i opted for smaller standard deviations for those variables which have been confirmed to be strongly correlated (>= +/-0.65) with life expectancy in at least two out of three chosen highly upvoted EDA/ML studies on Kaggle working with this dataset or the original WHO dataset that this data is derived from. If any variables also had exceptionally low correlation in 2+ of these studies, I set up larger standard deviations for them. To gather this information, I read through the EDA reports of the studies with a main focus on the heatmaps provided.
+
+Following this, I attempted to use reasonable intuition to decide which variables may have a larger effect size on life expectancy by considering which variables have a direct vs. indirect effect on an individuals' life (i.e., Adult mortality has a very direct effect: If many adults die, odds are that many young adults die, lowering the life expectancy; on the other hand, Schooling is highly correlated but likely in more indirect ways: less schooling leads to worse job prospects leads to lower wages leads to a less healthy lifestyle leading to lower life expectancy.)
+For variables which i expect to have a very direct and therefore probably larger effect size, I changed their mean to be the of effect sizes according those previous studies who attested it as being high correlation (see the example for adult mortality below).
+This leads to the following changes in conclusion:
+
+Adult_mortality (which was not part of model 1 and is added here) was found in two studies to be highly negatively correlated with life expectancy by 2/3 studies, and given that it is a very direct causal connection, it is probably not only a significant but also a strong predictor. For being significant, it receives a relatively low SD of 5, roughly a quarter of the SD set by Gelman et al.
+One of the studies attested a correlation of -0.65 with life expectancy, the other attested a correlation of -0.95. This averages to -0.8, which will be used as the mean.
+
+Schooling is a more indirect predictor which nonetheless appears to have a strong connection with life expectancy. Therefore the mean will remain the same (0), but the standard deviation will be lowered to 5.
+
+BMI is a more difficult choice to make, as a very low BMI may indicate starvation and higher mortality due to that, while high BMI could lead to one of two conclusions: lower expectancy due to health complications related to obesity, or higher life expectancy due to abundance in food, as is observed in many highly developed western countries. Given that it is difficult to really tell the direction of BMI, I decided to not change the mean, but still change the SD as BMI is undoubtably a relevant factor in life expectancy, which is also backed up by previous research.
+
+Lastly, all three studies agreed that the population count of the country has little to no effect on the life expectancy, as such it received a much higher standard deviation of 30. One could also consider to remove the variable as a predictor overall, but i considered it to be a better option to leave it in while ensuring to model a high level of uncertainty.
+
+For the other variables in the dataset , there are definitely still varying degrees of correlation with life expectancy, meaning more fine-tuning would be possible, but for many of them i couldn't find sufficient agreement between the studies to really justify making specific changes over the generally recommended priors of Gelman et al.
+
+### Model 3:
+
+### Model 4:
+
+### Model 5:
+
 ## 4. Model checking (3pt)
 
-a. Perform a prior sensitivity analysis for each model and modify the model if appropriate. Justify.
+a.  Perform a prior sensitivity analysis for each model and modify the model if appropriate. Justify.
 
 ```{r}
-
+powerscale_sensitivity(m.1)
+powerscale_sensitivity(m.2)
 ```
+
 <!-- EXPLAIN CONCLUSIONS AND WHETHER MODELS ARE KEPT, MODIFIED  -->
 
-b. Conduct posterior predictive checks for each model to assess how well they fit the data.
-Explain what you conclude.
+### Model 1: Random Intercept for Region (Giyanto)
+
+Doesn't seem that the posterior is overly affected by any prior.
+
+### Model 2:
+
+Again, no obvious errors are indicated
+
+### Model 3:
+
+### Model 4:
+
+### Model 5:
+
+b.  Conduct posterior predictive checks for each model to assess how well they fit the data. Explain what you conclude.
 
 ```{r}
+# Model 1: Random Intercept for Region (Giyanto)
+print(pp_check(m.1, type = "intervals"))
+print(pp_check(m.1, ndraws = 200))
+print(pp_check(m.1, type = "stat_2d"))
 
+# Model 2: Random Intercept for Region with informed priors(Fynn)
+print(pp_check(m.2, type = "intervals"))
+print(pp_check(m.2, ndraws = 200))
+print(pp_check(m.2, type = "stat_2d"))
 ```
 
 <!-- EXPLAIN CONCLUSIONS -->
 
+### Model 1: Random Intercept for Region (Giyanto)
+The posterior predictive checks for Model 1 (Random Intercept for Region) indicate that the model fits the data well. The intervals plot shows that most observed data points fall within the 95% credible intervals, capturing the variability in the data. The density overlay plot demonstrates a good match between the observed and simulated densities, suggesting the model accurately represents the overall distribution of life expectancy. The scatter plot of summary statistics confirms that the model's predictions align with the observed data in terms of both the mean and standard deviation. Therefore, this model is suitable for further analysis and inference.
+
+
+### Model 2:
+When comparing to the previous model, the posterior predictive checks seem to indicate a slight positive effect. A large majority of the data remains in the 95% CI, the density plot line seems to follow the simulated densities even closer And the scatter plot also indicates a very central point.
+As such, these model changes show positive progress, although a higher risk of overfitting needs to be considered when making major standard deviation changes to multiple variables.
+
+### Model 3:
+
+### Model 4:
+
+### Model 5:
+
 ## 5. Model Comparison (1.5pt)
 
-a. Use k-fold cross-validation to compare the models.
+a.  Use k-fold cross-validation to compare the models.
 
 ```{r}
+plan(multisession)
 
+# Model 1 
+k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
+kf.m.1 <- kfold(m.1, chains = 1, folds = k, save_fits = T)
+kf.m.1
+
+# Model 2 
+k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
+kf.m.2 <- kfold(m.2, chains = 1, folds = k, save_fits = T)
+kf.m.2
+
+
+plan(sequential)
 ```
-b. Determine the best model based on predictive accuracy and justify your decision.
+
+b.  Determine the best model based on predictive accuracy and justify your decision.
+
+```{r}
+loo_compare(kf.m.1,kf.m.2) #, kf.m.3, kf.m.4, kf.m.5 )
+```
+
+So far, when comparing the first two models, we can see that the model seems to offer a slightly better performance without overfitting the data yet; hence it should be the preferred option thus far.
 
 <!-- DECISION -->
-
 
 ## 6. Interpretation of Important Parameters (1.5pt)
 
@@ -246,22 +432,56 @@ Choose one of the best models and interpret its most important parameters.
 
 ## 7. Report a loss function on the test set (Optional for bonus 0.5 to 1pt, depending on if you use RMSE or another function).
 
-Report RMSE or other loss (or utility) function on the test set. (Transform it back if necessary).
+Report RMSE or other loss (or utility) function on the test set.
+(Transform it back if necessary).
+
+```{r}
+#loss function RMSE
+rmse <- function(y, yrep){
+  # We summarize our distribution of predictions with
+  # a point prediction. In this case the average.
+  # The distribution of predictions for each
+  # out of sample observation is in the columns of yrep.
+  # Or more accuraretly, samples (iter/2* nchains) from
+  # the distribution of predictions
+  yrep_mean <- colMeans(yrep)
+  # Formula of RMSE:
+  sqrt(mean((yrep_mean - y)^2))
+}
 
 
-# Contributions of each member 
+#predictions with RMSE
+# Model 1
+pred_m.1 <- posterior_predict(m.1, newdata = life_expectancy_test)
+print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.1)))
 
-- Fynn --> descriptives of dataset
-- Emma -->
-- Sam -->
-- Giyanto --> pre-processing of dataset
-- Evi -->
-- Everyone --> model exploration
+# Model 2
+pred_m.2 <- posterior_predict(m.2, newdata = life_expectancy_test)
+print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.2)))
+
+#predictions with MAE
+# Model 1
+print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expectancy))))
+
+# Model 2
+print(paste("MAE Model 1: ", mean(abs(pred_m.2 - life_expectancy_test$Life_expectancy))))
+
+``` 
+# Contributions of each member
+
+-   Fynn --\> descriptives of dataset, second model and all code relating to it
+-   Emma --\>
+-   Sam --\>
+-   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, and RMSE function (his will to voluntarily work on this project can not be overstated -Fynn)
+-   Evi --\>
+-   Everyone --\> model exploration
 
 # Statement of technology
 
-
 # References
 
-- Lasha. (2023). Life expectancy (WHO) fixed [Dataset]. In Kaggle. https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/code
-- Rajarshi, K. [KumarRajarshi]. (2018). Life expectancy (WHO) [Dataset]. In Kaggle. https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who/code?datasetId=12603&sortBy=relevance
+- Lasha. (2023). Life expectancy (WHO) fixed [Dataset]. In Kaggle. <https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/code>
+- Rajarshi, K. [KumarRajarshi]. (2018). Life expectancy (WHO) [Dataset]. In Kaggle. <https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who/code?datasetId=12603&sortBy=relevance>
+- Gadige, H. (2019, May 18). Life Expectancy Cleaning,EDA,Feature Engineering. Kaggle. https://www.kaggle.com/code/harshini564/life-expectancy-cleaning-eda-feature-engineering
+- Sai Kanuri, V. (2022, October 3). Life expectancy visualization. Kaggle. https://www.kaggle.com/code/varunsaikanuri/life-expectancy-visualization
+- Ngala540. (2023, May 5). Life expectancy prediction. Kaggle. https://www.kaggle.com/code/ngala540/life-expectancy-prediction
