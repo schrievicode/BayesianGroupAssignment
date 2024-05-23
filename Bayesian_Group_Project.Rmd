@@ -294,7 +294,28 @@ m.2 <- brm(formula.m1,
 
 m.2
 
+###################################################################################################################
+#-- Model 4:  Varying intercept and varying slopes model | Gelman priors (Sam) --#
+###################################################################################################################
 
+# Define the formula for the model
+formula.m4 <- bf(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita || Region)
+)
+
+GelmanEtAl <- c(
+  prior(normal(71.37, 19.92), class = "Intercept"),  
+  prior(normal(0, 19.92), class = "b"),             
+  prior(exponential(0.1255), class = "sigma")       
+)
+
+m.4 <- brm(formula.m4, 
+               data = life_expectancy_train,
+               family = gaussian(), 
+               prior = GelmanEtAl, 
+               seed = 123)
+
+m.4
 
 ```
 
@@ -338,6 +359,12 @@ For the other variables in the dataset , there are definitely still varying degr
 
 ### Model 4:
 
+As with the first, second and third model, this model predicts the life expectancy using the different predictors in the dataset.The model furthermore incorporates a random intercept for regions to account for unobserved heterogeneity across different regions. Additionally, a varying slope for the different regions is added, as the effect of GDP per capita on life expectancy could be different accross the different regeions. 
+
+The model accounts for regional differences in the baseline life expectancy and the different effect of GDP per capita per region. The significant (when analysing the confidence intervals) standard deviations (sd(Intercept) and sd(GDP_per_capita)) indicate that there is notable variation in life expectancy and the impact of GDP per capita across regions. Additionally, Incidents_HIV has a significant negative effect and GDP_per_capita and Schooling have a significant positive effect on life expectancy when analysing the confidence intervals. 
+
+The priors used in this model are the same as explored in the first model. 
+
 ### Model 5:
 
 ## 4. Model checking (3pt)
@@ -347,6 +374,7 @@ a.  Perform a prior sensitivity analysis for each model and modify the model if 
 ```{r}
 powerscale_sensitivity(m.1)
 powerscale_sensitivity(m.2)
+powerscale_sensitivity(m.4)
 ```
 
 <!-- EXPLAIN CONCLUSIONS AND WHETHER MODELS ARE KEPT, MODIFIED  -->
@@ -362,6 +390,7 @@ Again, no obvious errors are indicated
 ### Model 3:
 
 ### Model 4:
+Same as before, there are no obvious error that arise from the sensitivity.
 
 ### Model 5:
 
@@ -377,6 +406,11 @@ print(pp_check(m.1, type = "stat_2d"))
 print(pp_check(m.2, type = "intervals"))
 print(pp_check(m.2, ndraws = 200))
 print(pp_check(m.2, type = "stat_2d"))
+
+# Model 4: Sam
+print(pp_check(m.4, type = "intervals"))
+print(pp_check(m.4, ndraws = 200))
+print(pp_check(m.4, type = "stat_2d"))
 ```
 
 <!-- EXPLAIN CONCLUSIONS -->
@@ -392,6 +426,7 @@ As such, these model changes show positive progress, although a higher risk of o
 ### Model 3:
 
 ### Model 4:
+By analysing the posterior plots, it is evident that the model is pretty accurate at predicting the life expectancy in each country. The predictive distrubtions follow the shape of the actual distribution of life expectancy closely. Still there is some significant standard deviation presents in the predictions. This is further explained by the predictions per country in the dataset. Some of the countries are predicted well within the interval, while other prediction are completely different from the actual value. By the analysis of the scatter plot we see that in general, the predicted average is about the same as the actual mean life expectancy. The same can be said for the standard deviation. Still, there are some outliers in the data, which implies that there might still be some room for the model to improve.
 
 ### Model 5:
 
@@ -412,6 +447,9 @@ k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
 kf.m.2 <- kfold(m.2, chains = 1, folds = k, save_fits = T)
 kf.m.2
 
+# Model 4
+kf.m.4 <- kfold(m.4, chains = 1, folds = k, save_fits = T)
+kf.m.4
 
 plan(sequential)
 ```
@@ -419,7 +457,7 @@ plan(sequential)
 b.  Determine the best model based on predictive accuracy and justify your decision.
 
 ```{r}
-loo_compare(kf.m.1,kf.m.2) #, kf.m.3, kf.m.4, kf.m.5 )
+loo_compare(kf.m.1,kf.m.2, kf.m.4) #, kf.m.3, , kf.m.5 )
 ```
 
 So far, when comparing the first two models, we can see that the model seems to offer a slightly better performance without overfitting the data yet; hence it should be the preferred option thus far.
@@ -461,6 +499,10 @@ print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yre
 pred_m.2 <- posterior_predict(m.2, newdata = life_expectancy_test)
 print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.2)))
 
+# Model 4
+pred_m.4 <- posterior_predict(m.4, newdata = life_expectancy_test)
+print(paste("RMSE Model 4: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.4)))
+
 #predictions with MAE
 # Model 1
 print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expectancy))))
@@ -468,12 +510,15 @@ print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expec
 # Model 2
 print(paste("MAE Model 1: ", mean(abs(pred_m.2 - life_expectancy_test$Life_expectancy))))
 
+# Model 4
+print(paste("MAE Model 4: ", mean(abs(pred_m.4 - life_expectancy_test$Life_expectancy))))
+
 ``` 
 # Contributions of each member
 
 -   Fynn --\> descriptives of dataset, second model and all code relating to it
 -   Emma --\>
--   Sam --\>
+-   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this. 
 -   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, and RMSE function (his will to voluntarily work on this project can not be overstated -Fynn)
 -   Evi --\>
 -   Everyone --\> model exploration
