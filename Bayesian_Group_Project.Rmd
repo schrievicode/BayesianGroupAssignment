@@ -294,34 +294,7 @@ m.2 <- brm(formula.m1,
 
 m.2
 
-###################################################################################################################
-#-- Model 3: Random intercept for Region | Informative priors for shaping disease-related coefficients towards negative impact (Evi) --#
-###################################################################################################################
-formula.m1 <- bf(
-  Life_expectancy ~ Alcohol_consumption + Adult_mortality + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
-)
 
-# Informative priors for specific disease-related coefficients being concerned with a negative influence
-informative_priors <- c(
-  set_prior("normal(-3, 0.5)", class = "b", coef = "Hepatitis_B"),
-  set_prior("normal(-3, 0.5)", class = "b", coef = "Measles"),
-  set_prior("normal(-3, 0.5)", class = "b", coef = "Polio"),
-  set_prior("normal(-3, 0.5)", class = "b", coef = "Diphtheria"),
-  set_prior("normal(-3, 0.5)", class = "b", coef = "Incidents_HIV")
-)
-
-# Combining the priors, such that Gelman priors apply to the remaining coefficients 
-combined_priors <- c(GelmanEtAl, informative_priors)
-
-# Training the model 
-m3 <- brm(
-  formula = formula.m1,
-  data = life_expectancy_train,
-  prior = combined_priors,
-  family = gaussian()
-)
-
-m3
 
 ```
 
