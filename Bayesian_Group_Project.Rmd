@@ -294,6 +294,26 @@ m.2 <- brm(formula.m1,
 
 m.2
 
+###################################################################################
+#-- Model 3:  Random intercept for Region | Horseshoe priors (Evi) --#
+###################################################################################
+
+formula.m1 <- bf(
+  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
+)
+
+HorseshoePriors <- c(
+  prior(horseshoe(df = 1, scale_global = 0.5, scale_slab = 10), class = "b"))
+
+m.3 <- brm(
+  formula = formula.m1, 
+  data = life_expectancy_train,
+  family = gaussian(), 
+  prior = HorseshoePriors, 
+  seed = 123)
+
+m.3
+
 ###################################################################################################################
 #-- Model 4:  Varying intercept and varying slopes model | Gelman priors (Sam) --#
 ###################################################################################################################
