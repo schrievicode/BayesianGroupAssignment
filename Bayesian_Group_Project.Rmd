@@ -549,10 +549,10 @@ print(paste("RMSE Model 4: ", rmse(y = life_expectancy_test$Life_expectancy, yre
 print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expectancy))))
 
 # Model 2
-print(paste("MAE Model 1: ", mean(abs(pred_m.2 - life_expectancy_test$Life_expectancy))))
+print(paste("MAE Model 2: ", mean(abs(pred_m.2 - life_expectancy_test$Life_expectancy))))
 
 # Model 3
-print(paste("MAE Model 1: ", mean(abs(pred_m.3 - life_expectancy_test$Life_expectancy))))
+print(paste("MAE Model 3: ", mean(abs(pred_m.3 - life_expectancy_test$Life_expectancy))))
 
 # Model 4
 print(paste("MAE Model 4: ", mean(abs(pred_m.4 - life_expectancy_test$Life_expectancy))))
