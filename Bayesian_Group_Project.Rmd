@@ -416,6 +416,8 @@ Again, no obvious errors are indicated
 
 ### Model 3:
 
+Similar to previously executed models, no alarming errors are flagged. 
+
 ### Model 4:
 Same as before, there are no obvious error that arise from the sensitivity.
 
