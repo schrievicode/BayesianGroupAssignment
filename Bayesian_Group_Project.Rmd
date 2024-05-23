@@ -379,7 +379,9 @@ For the other variables in the dataset , there are definitely still varying degr
 
 This model predicts life-expectancy on the basis of the same predictors as previously established models. The model varies in its approach to the priors used for training the model.  
 
-Horseshoe priors are Bayesian prior distributions that allow for sparsity in regression coefficients by allowing some coefficients to be close to zero while allowing others to have large magnitudes. The regularization terms included in horseshoe priors encompass a global shrinkage component, which applies a level of shrinkage to all coefficients, and a slab component, which acts as a heavy-tailed distribution allowing some coefficients to remain large despite the global shrinkage, thereby promoting sparsity in the model. The scale_global parameter sets the scale of the global shrinkage component of the prior. The scale_slab parameter sets the scale of the slab component of the prior. A larger scale (like 10) allows for a wider range of plausible coefficient values.  
+Horseshoe priors are Bayesian prior distributions that allow for sparsity in regression coefficients by allowing some coefficients to be close to zero while allowing others to have large magnitudes. The regularization terms included in horseshoe priors encompass a global shrinkage component, which applies a level of shrinkage to all coefficients, and a slab component, which acts as a heavy-tailed distribution allowing some coefficients to remain large despite the global shrinkage, thereby promoting sparsity in the model. 
+
+The scale_global parameter sets the scale of the global shrinkage component of the prior. The scale_slab parameter sets the scale of the slab component of the prior. A larger scale (like 10) allows for a wider range of plausible coefficient values.  
 
 ### Model 4:
 
@@ -432,6 +434,11 @@ print(pp_check(m.2, type = "intervals"))
 print(pp_check(m.2, ndraws = 200))
 print(pp_check(m.2, type = "stat_2d"))
 
+# Model 3: Random Intercept for Region with Horseshoe priors(Evi)
+print(pp_check(m.3, type = "intervals"))
+print(pp_check(m.3, ndraws = 200))
+print(pp_check(m.3, type = "stat_2d"))
+
 # Model 4: Sam
 print(pp_check(m.4, type = "intervals"))
 print(pp_check(m.4, ndraws = 200))
@@ -471,6 +478,11 @@ kf.m.1
 k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
 kf.m.2 <- kfold(m.2, chains = 1, folds = k, save_fits = T)
 kf.m.2
+
+# Model 3 
+k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
+kf.m.3 <- kfold(m.2, chains = 1, folds = k, save_fits = T)
+kf.m.3
 
 # Model 4
 kf.m.4 <- kfold(m.4, chains = 1, folds = k, save_fits = T)
@@ -522,7 +534,11 @@ print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yre
 
 # Model 2
 pred_m.2 <- posterior_predict(m.2, newdata = life_expectancy_test)
-print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.2)))
+print(paste("RMSE Model 2: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.2)))
+
+# Model 3
+pred_m.3 <- posterior_predict(m.3, newdata = life_expectancy_test)
+print(paste("RMSE Model 3: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.3)))
 
 # Model 4
 pred_m.4 <- posterior_predict(m.4, newdata = life_expectancy_test)
@@ -535,6 +551,9 @@ print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expec
 # Model 2
 print(paste("MAE Model 1: ", mean(abs(pred_m.2 - life_expectancy_test$Life_expectancy))))
 
+# Model 3
+print(paste("MAE Model 1: ", mean(abs(pred_m.3 - life_expectancy_test$Life_expectancy))))
+
 # Model 4
 print(paste("MAE Model 4: ", mean(abs(pred_m.4 - life_expectancy_test$Life_expectancy))))
 
@@ -545,7 +564,7 @@ print(paste("MAE Model 4: ", mean(abs(pred_m.4 - life_expectancy_test$Life_expec
 -   Emma --\>
 -   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this. 
 -   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, and RMSE function (his will to voluntarily work on this project can not be overstated -Fynn)
--   Evi --\>
+-   Evi --\> Buildig model 3 and providing explanations on its chosen structure. As well as interpretation of its outputs. 
 -   Everyone --\> model exploration
 
 # Statement of technology
