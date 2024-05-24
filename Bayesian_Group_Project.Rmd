@@ -233,7 +233,7 @@ a.  Fit multiple appropriate models to the dataset (as many models as there are 
 
 # Define the formula for the model
 formula.m1 <- bf(
-  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
+  Life_expectancy ~ Alcohol_consumption + Adult_mortality + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
 )
 
 
@@ -299,7 +299,7 @@ m.2
 ###################################################################################
 
 formula.m1 <- bf(
-  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
+  Life_expectancy ~ Alcohol_consumption + Adult_mortality + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 | Region)
 )
 
 HorseshoePriors <- c(
@@ -320,7 +320,7 @@ m.3
 
 # Define the formula for the model
 formula.m4 <- bf(
-  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita || Region)
+  Life_expectancy ~ Alcohol_consumption + Adult_mortality + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita || Region)
 )
 
 GelmanEtAl <- c(
@@ -342,7 +342,7 @@ m.4
 ###################################################################################
 # Define the formula for the model
 formula.m5 <- bf(
-  Life_expectancy ~ Alcohol_consumption + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita | Region)
+  Life_expectancy ~ Alcohol_consumption + Adult_mortality + Hepatitis_B + Measles + BMI + Polio + Diphtheria + Incidents_HIV + GDP_per_capita + Population_mln + Thinness_ten_nineteen_years + Thinness_five_nine_years + Schooling + Economy_status_Developed + (1 + GDP_per_capita | Region)
 )
 
 prior_info_m5 <- get_prior(
@@ -542,8 +542,6 @@ b.  Determine the best model based on predictive accuracy and justify your decis
 loo_compare(kf.m.1,kf.m.2, kf.m.3, kf.m.4, kf.m.5)
 ```
 
-So far, when comparing the first two models, we can see that the model seems to offer a slightly better performance without overfitting the data yet; hence it should be the preferred option thus far.
-
 <!-- DECISION -->
 
 ## 6. Interpretation of Important Parameters (1.5pt)
@@ -617,7 +615,6 @@ print(paste("MAE Model 5: ", mean(abs(pred_m.5 - life_expectancy_test$Life_expec
 -   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this. 
 -   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, and RMSE function (his will to voluntarily work on this project can not be overstated -Fynn)
 -   Evi --\> Buildig model 3 and providing explanations on its chosen structure. As well as interpretation of its outputs. 
--   Everyone --\> model exploration
 
 # Statement of technology
 
