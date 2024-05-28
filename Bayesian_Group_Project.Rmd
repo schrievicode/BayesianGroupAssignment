@@ -608,6 +608,50 @@ print(paste("MAE Model 4: ", mean(abs(pred_m.4 - life_expectancy_test$Life_expec
 print(paste("MAE Model 5: ", mean(abs(pred_m.5 - life_expectancy_test$Life_expectancy))))
 
 ``` 
+
+A possible utility function could be made for a pension fund. Here, the objective would be to ensure the financial stability of the fund by accurately predicting life expectancy to determine pension payouts. In this case, the utility function could reflect the financial impact of overestimating and underestimating life expectancy.
+
+Underestimation: If life expectancy is underestimated, the pension fund might run out of money sooner than expected, which results in insufficient funds for future payouts.
+Overestimation: If the pension fund overestimates life expectancy, it will allocate more funds than necessary for payouts, assuming a longer payout period. This results in a larger portion of the fund being set aside for current payouts, reducing the amount available for investment and growth.
+
+For this we made the following utility function that punishes underestimating more than overestimating, since the pension fund could run out of money when underestimating too much. (But the parameters can be changed).
+
+```{r}
+
+util_life_expectancy <- function(actual, predicted, penalty_under = 1.5, penalty_over = 1) {
+  ifelse(predicted - actual > 0, 
+         -penalty_over * (predicted - actual), 
+         -penalty_under * (actual - predicted))
+}
+
+eutil_life_expectancy <- function(y, yrep, penalty_under = 1.5, penalty_over = 1) {
+  yrep_mean <- colMeans(yrep)
+  mean(util_life_expectancy(y, yrep_mean, penalty_under, penalty_over))
+}
+
+
+
+
+# Calculate Expected Utility for each model
+expected_utility_m1 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.1)
+print(paste("Expected Utility Model 1: ", expected_utility_m1))
+
+expected_utility_m2 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.2)
+print(paste("Expected Utility Model 2: ", expected_utility_m2))
+
+expected_utility_m3 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.3)
+print(paste("Expected Utility Model 3: ", expected_utility_m3))
+
+expected_utility_m4 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.4)
+print(paste("Expected Utility Model 4: ", expected_utility_m4))
+
+expected_utility_m5 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.5)
+print(paste("Expected Utility Model 5: ", expected_utility_m5))
+
+
+
+```
+
 # Contributions of each member
 
 -   Fynn --\> descriptives of dataset, second model and all code relating to it
