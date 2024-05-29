@@ -33,6 +33,8 @@ knitr::opts_chunk$set(echo= TRUE,
                       warning=TRUE)
 
 knitr::opts_knit$set(width=90)
+## Added this line, because I use a different version of RStudio (although there are no functional differences)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 set.seed(42)
 ```
@@ -41,14 +43,14 @@ set.seed(42)
 
 The submission includes the following.
 
--   [ ] RMD document where it's clear what is the code that corresponds to each question.
--   [ ] Dataset
--   [ ] html/PDF document with the following
-    -   [ ] Numbered questions and answers with text and all the necessary code.
-    -   [ ] Subtitle indicates the group number
-    -   [ ] Name of all group members
-    -   [ ] Details of specification of the work done by group members (e.g., who found the data, who did the pre-processing, who answered which questions, etc).
-    -   [ ] Statement of technology. Did you use any AI tools? How?
+-   [X] RMD document where it's clear what is the code that corresponds to each question.
+-   [X] Dataset
+-   [X] html/PDF document with the following
+    -   [X] Numbered questions and answers with text and all the necessary code.
+    -   [X] Subtitle indicates the group number
+    -   [X] Name of all group members
+    -   [X] Details of specification of the work done by group members (e.g., who found the data, who did the pre-processing, who answered which questions, etc).
+    -   [X] Statement of technology. Did you use any AI tools? How?
 
 # Group project {.unnumbered}
 
@@ -85,11 +87,9 @@ Furthermore, information about life expectancy, BMI and GDP per capita has been 
 Information about vaccination status has been collected through other public WHO datasets.
 Lastly, some countries with an exceptionally high amount of missing variables have been removed entirely from the dataset.
 
-Note should be taken that the dataset contains two variable, once whether a country is developing or not, and separately whether a country is developed or not.
+Note should be taken that the dataset contains two variables, once whether a country is developing or not, and separately whether a country is developed or not.
 Whether countries were developed or developing appears to have been inferred based on Gross National Income per capita.
 We have converged this variable into a singular dummy variable.
-
-<!-- DESCRIBE IT BELOW -->
 
 ```{r}
 # load the data and preprocessing steps go here
@@ -310,6 +310,7 @@ m.3 <- brm(
   data = life_expectancy_train,
   family = gaussian(), 
   prior = HorseshoePriors, 
+  file = "fits/Bayesian_Group_Assignment_m3",
   seed = 123)
 
 m.3
@@ -332,7 +333,8 @@ GelmanEtAl <- c(
 m.4 <- brm(formula.m4, 
                data = life_expectancy_train,
                family = gaussian(), 
-               prior = GelmanEtAl, 
+               prior = GelmanEtAl,
+               file = "fits/Bayesian_Group_Assignment_m4",
                seed = 123)
 
 m.4
@@ -366,9 +368,7 @@ m.5
 
 b.  Explain each model and describe its structure (what they assume about potential population- level or group-level effects), and the type of priors used.
 
-<!-- EXPLAIN BELOW, REFER TO EACH MODEL -->
-
-### Model 1: Random Intercept for Region (Giyanto)
+### 3.1 Model 1: Random Intercept for Region (Giyanto)
 
 This model predicts life expectancy using multiple predictors, including alcohol consumption, hepatitis B vaccination coverage, measles vaccination coverage, body mass index (BMI), polio vaccination coverage, diphtheria vaccination coverage, HIV incidence, GDP per capita, population size, thinness among ten to nineteen-year-olds, thinness among five to nine-year-olds, schooling, and whether the economy is developed.
 The model incorporates a random intercept for regions to account for unobserved heterogeneity across different regions.
@@ -382,7 +382,9 @@ The prior for the fixed effects coefficients (β) is also a normal distribution 
 This allows the data to dominate the estimates while providing some regularization.
 The prior for the residual standard deviation (σ) follows an exponential distribution with a rate of 0.1255, suggesting a relatively small standard deviation and encouraging the model to fit the data closely.
 
-### Model 2:
+
+### 3.2 Model 2: Random intercept for Region | Priors based on previous EDA (Fynn)
+
 The second model builds on the first one by keeping most of the Gelman et al. priors, but using information of previous studies on this dataset in order to learn which features are more/less strongly correlated with our outcome variable, Life expectancy. I did this in the following ways: i opted for smaller standard deviations for those variables which have been confirmed to be strongly correlated (>= +/-0.65) with life expectancy in at least two out of three chosen highly upvoted EDA/ML studies on Kaggle working with this dataset or the original WHO dataset that this data is derived from. If any variables also had exceptionally low correlation in 2+ of these studies, I set up larger standard deviations for them. To gather this information, I read through the EDA reports of the studies with a main focus on the heatmaps provided.
 
 Following this, I attempted to use reasonable intuition to decide which variables may have a larger effect size on life expectancy by considering which variables have a direct vs. indirect effect on an individuals' life (i.e., Adult mortality has a very direct effect: If many adults die, odds are that many young adults die, lowering the life expectancy; on the other hand, Schooling is highly correlated but likely in more indirect ways: less schooling leads to worse job prospects leads to lower wages leads to a less healthy lifestyle leading to lower life expectancy.)
@@ -400,7 +402,8 @@ Lastly, all three studies agreed that the population count of the country has li
 
 For the other variables in the dataset , there are definitely still varying degrees of correlation with life expectancy, meaning more fine-tuning would be possible, but for many of them i couldn't find sufficient agreement between the studies to really justify making specific changes over the generally recommended priors of Gelman et al.
 
-### Model 3:
+
+### 3.3 Model 3: Random intercept for Region | Horseshoe priors (Evi)
 
 This model predicts life-expectancy on the basis of the same predictors as previously established models. The model varies in its approach to the priors used for training the model.  
 
@@ -408,7 +411,8 @@ Horseshoe priors are Bayesian prior distributions that allow for sparsity in reg
 
 The scale_global parameter sets the scale of the global shrinkage component of the prior. The scale_slab parameter sets the scale of the slab component of the prior. A larger scale (like 10) allows for a wider range of plausible coefficient values.  
 
-### Model 4:
+
+### 3.4 Model 4: Varying intercept and varying slopes model | Gelman priors (Sam)
 
 As with the first, second and third model, this model predicts the life expectancy using the different predictors in the dataset.The model furthermore incorporates a random intercept for regions to account for unobserved heterogeneity across different regions. Additionally, a varying slope for the different regions is added, as the effect of GDP per capita on life expectancy could be different accross the different regeions. 
 
@@ -416,7 +420,8 @@ The model accounts for regional differences in the baseline life expectancy and 
 
 The priors used in this model are the same as explored in the first model. 
 
-### Model 5:
+
+### 3.5 Model 5: Correlated varying intercept & varing slopes model (Emma)
 
 This model also predicts life expectancy based on several predicters used in the dataset, with varying intercepts and slopes for GDP_per_capita by Region. The model allows the intercept and slope for GDP_per_capita to vary by region. This means that each region can have its own baseline life expectancy and its own effect of GDP_per_capital on life expectancy. 
 
@@ -436,24 +441,7 @@ powerscale_sensitivity(m.4)
 powerscale_sensitivity(m.5)
 ```
 
-<!-- EXPLAIN CONCLUSIONS AND WHETHER MODELS ARE KEPT, MODIFIED  -->
-
-### Model 1: Random Intercept for Region (Giyanto)
-
-Doesn't seem that the posterior is overly affected by any prior.
-
-### Model 2:
-
-Again, no obvious errors are indicated
-
-### Model 3:
-
-Similar to previously executed models, no alarming errors are flagged. 
-
-### Model 4:
-Same as before, there are no obvious error that arise from the sensitivity.
-
-### Model 5:
+The powerscale sensitivities indicate no errors for any of the 5 models.
 
 b.  Conduct posterior predictive checks for each model to assess how well they fit the data. Explain what you conclude.
 
@@ -473,7 +461,7 @@ print(pp_check(m.3, type = "intervals"))
 print(pp_check(m.3, ndraws = 200))
 print(pp_check(m.3, type = "stat_2d"))
 
-# Model 4: Sam
+# Model 4: Varying intercept and varying slopes model with Gelman priors (Sam)
 print(pp_check(m.4, type = "intervals"))
 print(pp_check(m.4, ndraws = 200))
 print(pp_check(m.4, type = "stat_2d"))
@@ -484,23 +472,32 @@ print(pp_check(m.5, ndraws = 200))
 print(pp_check(m.5, type = "stat_2d"))
 ```
 
-<!-- EXPLAIN CONCLUSIONS -->
 
-### Model 1: Random Intercept for Region (Giyanto)
+### 4.1 Model 1: Random Intercept for Region (Giyanto)
+
 The posterior predictive checks for Model 1 (Random Intercept for Region) indicate that the model fits the data well. The intervals plot shows that most observed data points fall within the 95% credible intervals, capturing the variability in the data. The density overlay plot demonstrates a good match between the observed and simulated densities, suggesting the model accurately represents the overall distribution of life expectancy. The scatter plot of summary statistics confirms that the model's predictions align with the observed data in terms of both the mean and standard deviation. Therefore, this model is suitable for further analysis and inference.
 
 
-### Model 2:
+### 4.2 Model 2: Random intercept for Region | Priors based on previous EDA (Fynn)
+
 When comparing to the previous model, the posterior predictive checks seem to indicate a slight positive effect. A large majority of the data remains in the 95% CI, the density plot line seems to follow the simulated densities even closer And the scatter plot also indicates a very central point.
 As such, these model changes show positive progress, although a higher risk of overfitting needs to be considered when making major standard deviation changes to multiple variables.
 
-### Model 3:
+
+### 4.3 Model 3: Random intercept for Region | Horseshoe priors (Evi)
+
 Conducting predictive checks for the third model indicates a generally good fit to the data. Upon closer examination of the interval plot, it becomes evident that most data points fall within the 95% credible intervals. However, as some outliers appear on the plot, it is important to be mindful of their potential impact. The density overlay plot demonstrates consistency between the model's predictions and the observed data distributions, suggesting an accurate model fit. Furthermore, the scatter plot reveals that the observed points are well within the predictive cloud, indicating that the model adequately captures both the central tendency and variability of the data.
 
-### Model 4:
+
+### 4.4 Model 4: Varying intercept and varying slopes model | Gelman priors (Sam)
+
 By analysing the posterior plots, it is evident that the model is pretty accurate at predicting the life expectancy in each country. The predictive distrubtions follow the shape of the actual distribution of life expectancy closely. Still there is some significant standard deviation presents in the predictions. This is further explained by the predictions per country in the dataset. Some of the countries are predicted well within the interval, while other prediction are completely different from the actual value. By the analysis of the scatter plot we see that in general, the predicted average is about the same as the actual mean life expectancy. The same can be said for the standard deviation. Still, there are some outliers in the data, which implies that there might still be some room for the model to improve.
 
-### Model 5:
+
+### 4.5 Model 5: Correlated varying intercept & varing slopes model (Emma)
+
+When looking at the posterior plots, we can see that generally the model still appears fairly accurate, albeit less than previous models. We can see in the intervals plot that the interval range ends up a bit wider. For the density plot, we can arguably see the biggest difference: the different draws are less uniform, they show more deviation than previous models. The scatter-plot does not show any notable issues.
+
 
 ## 5. Model Comparison (1.5pt)
 
@@ -542,13 +539,20 @@ b.  Determine the best model based on predictive accuracy and justify your decis
 loo_compare(kf.m.1,kf.m.2, kf.m.3, kf.m.4, kf.m.5)
 ```
 
-<!-- DECISION -->
+Upon repeatedly running the cross-validation, we find that there is barely any difference between Models 1-4 in terms of performance, indicating that there are different viable approaches to our topic. Although the positions among the first 4 models change, we decided that Models 1&3 would be the best option in a real-world application sense, for reason described in 6. below.
+
 
 ## 6. Interpretation of Important Parameters (1.5pt)
 
-Choose one of the best models and interpret its most important parameters.
+Comparing the cross-validation scores of all five models, we find that model 5 performs a lot worse than the other models. Model 4 is commonly the 2nd-worst, although it tends to not perform a lot worse than the other three models. Our assumption in this case is that varying slopes models are too complex, leading them to overfit and exhibit weak performance in the cross-validation
 
-<!-- INTERPRETATION AND CODE GOES HERE -->
+Apart from that, the differences are small, which makes an interpretation of the important parameters difficult. However, there are still a few more tendencies: 
+
+We found that model 2 appears to be the most volatile, often being either the best or 2nd-worst model. This could indicate that some of the priors may have been set too narrow, leading to it sometimes fitting the model rather well, and sometimes fitting the model poorly.
+
+Lastly, we find that model 1 and model 3 consistently perform decently well, always being the best or reasonably close to the best model. As such, one can argue that regularization through either Gelman or Horseshoe priors is for the most part sufficient, while increasing complexity (i.e., through the introduction of more narrow priors, or varying slopes models) seem to not meaningfully increase model performance, in the worst case even decreasing it. As such keeping things simple through basic Horseshoe or Gelman priors for a random intercept model seems to be the best option for this dataset and topic.
+
+A special note to be added: When beginning model exploration, the initial model 1 omitted the variable Adult_mortality, which was added to all models after being found to be strongly correlated through the research for model 2, which was the strongest model by far at that point in time. As such, this oversight confirmed that Adult_mortality is indeed an important variable to include in the model.
 
 ## 7. Report a loss function on the test set (Optional for bonus 0.5 to 1pt, depending on if you use RMSE or another function).
 
@@ -556,7 +560,7 @@ Report RMSE or other loss (or utility) function on the test set.
 (Transform it back if necessary).
 
 ```{r}
-#loss function RMSE
+# Loss function RMSE
 rmse <- function(y, yrep){
   # We summarize our distribution of predictions with
   # a point prediction. In this case the average.
@@ -570,7 +574,7 @@ rmse <- function(y, yrep){
 }
 
 
-#predictions with RMSE
+# Predictions with RMSE
 # Model 1
 pred_m.1 <- posterior_predict(m.1, newdata = life_expectancy_test)
 print(paste("RMSE Model 1: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.1)))
@@ -591,7 +595,7 @@ print(paste("RMSE Model 4: ", rmse(y = life_expectancy_test$Life_expectancy, yre
 pred_m.5 <- posterior_predict(m.5, newdata = life_expectancy_test)
 print(paste("RMSE Model 5: ", rmse(y = life_expectancy_test$Life_expectancy, yrep = pred_m.5)))
 
-#predictions with MAE
+# Predictions with MAE
 # Model 1
 print(paste("MAE Model 1: ", mean(abs(pred_m.1 - life_expectancy_test$Life_expectancy))))
 
@@ -632,7 +636,7 @@ eutil_life_expectancy <- function(y, yrep, penalty_under = 1.5, penalty_over = 1
 
 
 
-# Calculate Expected Utility for each model
+# Calculate Expected Utility for each model --(**COPIED FROM AI**)--
 expected_utility_m1 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.1)
 print(paste("Expected Utility Model 1: ", expected_utility_m1))
 
@@ -647,20 +651,22 @@ print(paste("Expected Utility Model 4: ", expected_utility_m4))
 
 expected_utility_m5 <- eutil_life_expectancy(y = life_expectancy_test$Life_expectancy, yrep = pred_m.5)
 print(paste("Expected Utility Model 5: ", expected_utility_m5))
-
-
-
 ```
 
 # Contributions of each member
 
--   Fynn --\> descriptives of dataset, second model and all code relating to it
+-   Fynn --\> descriptives of dataset, second model and all code relating to it, describing best model, describing workflow and Statement of technology, leading group meetings
 -   Emma --\> Creation of the fifth model and the explanations and conclusions in relation to this model
 -   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this. 
--   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, and RMSE function (his will to voluntarily work on this project can not be overstated -Fynn)
+-   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, RMSE, and Utility function.
 -   Evi --\> Buildig model 3 and providing explanations on its chosen structure. As well as interpretation of its outputs. 
 
+# Description of workflow
+
+On the day of the assignment release, group members met on zoom to go through the assignment and look for a dataset together until we collectively decided that we want to work with the life expectancy dataset. Fynn was tasked dealing with the description of that dataset, while Giyanto was tasked with the pre-processing steps. Following this, each member was to come up with one model for the model exploration. Giyanto voluntarily prepared further analysis (i.e., CV, RMSE, etc.). All other group members then applied his work on their own models and filled out the remaining steps. Discussion of Posterior Predictive Checks for model 5 was done by Fynn. Lastly, Fynn took care of the description of the best model performance, the statement of technology, as well as taking a last look over our documents before sending it in via Canvas
+
 # Statement of technology
+Our group has made use of AI knowledge in order to clarify concepts and ensure that we understand our work, however no AI-generated code has been used except where explicitly specified
 
 # References
 
