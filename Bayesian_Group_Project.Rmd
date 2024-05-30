@@ -542,7 +542,7 @@ b.  Determine the best model based on predictive accuracy and justify your decis
 loo_compare(kf.m.1,kf.m.2, kf.m.3, kf.m.4, kf.m.5)
 ```
 
-Upon repeatedly running the cross-validation, we find that there is barely any difference between Models 1-4 in terms of performance, indicating that there are different viable approaches to our topic. Although the positions among the first 4 models change, we decided that Models 1&3 would be the best option in a real-world application sense, for reason described in 6. below.
+Upon repeatedly running the cross-validation, we find that there is barely any difference between Models 1-4 in terms of performance, indicating that there are different viable approaches to our topic. Furthermore, the standard deviation of the models 1-4 indicate the uncertainty of the predictions. As the predicted difference in performance of model 1, 3 and 4 fall within two times the standard deviation, no clear conclusions can be made about which model performs best when only looking at these results. Although the positions among the first 4 models change, we decided that Models 1&3 would be the best option in a real-world application sense, for reason described in 6. below.
 
 
 ## 6. Interpretation of Important Parameters (1.5pt)
@@ -660,7 +660,7 @@ print(paste("Expected Utility Model 5: ", expected_utility_m5))
 
 -   Fynn --\> descriptives of dataset, second model and all code relating to it, describing best model, describing workflow and Statement of technology, leading group meetings
 -   Emma --\> Creation of the fifth model and the explanations and conclusions in relation to this model
--   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this. 
+-   Sam --\> Creation of the fourth model and all explanations and conclusion relation to this, checking interpretations of the models by other group members. 
 -   Giyanto --\> pre-processing of dataset, first model and all code relating to it, Setting up CV, PPD, RMSE, and Utility function.
 -   Evi --\> Buildig model 3 and providing explanations on its chosen structure. As well as interpretation of its outputs. 
 
