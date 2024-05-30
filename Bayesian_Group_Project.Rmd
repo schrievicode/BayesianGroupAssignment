@@ -83,6 +83,7 @@ A clustering variable can also be found, as the countries are grouped in regions
 This dataset contains values ranging from the years 2000 to 2015; we will focus only on the year 2015.
 The dataset we used is a cleaned version of the original dataset "Life Expectancy (WHO)" by user KumarRajarshi (2018), which contained some outdated or inaccurate information.
 It also contained some missing values which have been imputed either through the means of using a three year average of a given variable; if said variable was missing for all years, the region average of that variable was computed.
+Notably, he models created on this dataset can't be used in practise as no new countries will be introduced in the data most likely. Hence the models created by this dataset are only intended for theoretical use and not for the prediction of the life expectancy for new countries that might arise. 
 Furthermore, information about life expectancy, BMI and GDP per capita has been updated as per World Bank data.
 Information about vaccination status has been collected through other public WHO datasets.
 Lastly, some countries with an exceptionally high amount of missing variables have been removed entirely from the dataset.
@@ -90,6 +91,8 @@ Lastly, some countries with an exceptionally high amount of missing variables ha
 Note should be taken that the dataset contains two variables, once whether a country is developing or not, and separately whether a country is developed or not.
 Whether countries were developed or developing appears to have been inferred based on Gross National Income per capita.
 We have converged this variable into a singular dummy variable.
+
+
 
 ```{r}
 # load the data and preprocessing steps go here
