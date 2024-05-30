@@ -417,7 +417,7 @@ The scale_global parameter sets the scale of the global shrinkage component of t
 
 ### 3.4 Model 4: Varying intercept and varying slopes model | Gelman priors (Sam)
 
-As with the first, second and third model, this model predicts the life expectancy using the different predictors in the dataset.The model furthermore incorporates a random intercept for regions to account for unobserved heterogeneity across different regions. Additionally, a varying slope for the different regions is added, as the effect of GDP per capita on life expectancy could be different accross the different regeions. 
+As with the first, second and third model, this model predicts the life expectancy using the different predictors in the dataset.The model furthermore incorporates a random intercept for regions to account for unobserved heterogeneity across different regions. Additionally, a varying slope for the different regions is added, as the effect of GDP per capita on life expectancy could be different accross the different regions. The varying slope and the varying intercept for the region, is the group level effect in this case. The other paramters in the model imply the population level effect. 
 
 The model accounts for regional differences in the baseline life expectancy and the different effect of GDP per capita per region. The significant (when analysing the confidence intervals) standard deviations (sd(Intercept) and sd(GDP_per_capita)) indicate that there is notable variation in life expectancy and the impact of GDP per capita across regions. Additionally, Incidents_HIV has a significant negative effect and GDP_per_capita and Schooling have a significant positive effect on life expectancy when analysing the confidence intervals. 
 
