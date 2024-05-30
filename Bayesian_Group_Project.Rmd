@@ -528,12 +528,12 @@ kf.m.3
 kf.m.4 <- kfold(m.4, chains = 1, folds = k, save_fits = T)
 kf.m.4
 
-plan(sequential)
-
 # Model 5
 k <- loo::kfold_split_random(K = 10, N = nrow(life_expectancy_train))
 kf.m.5 <- kfold(m.5, chains = 1, folds = k, save_fits = T)
 kf.m.5
+
+plan(sequential)
 ```
 
 b.  Determine the best model based on predictive accuracy and justify your decision.
