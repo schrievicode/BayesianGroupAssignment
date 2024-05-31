@@ -140,7 +140,6 @@ print(summary(life_expectancy))
 # Don't see any strange data/outliers
 
 
-
 ##### Next step is to scale numerical values and convert categorical variables to factors
 
 # Ensure categorical variables are treated as a categorical variable
@@ -169,9 +168,6 @@ categorical_vars <- life_expectancy %>%
   names()
 
 
-# Scale numeric variables 
-life_expectancy <- life_expectancy %>%
-  mutate(across(all_of(numeric_vars), ~ scale(.) %>% as.vector()))  # (scale() scales each numeric variable by substracting the mean and dividing by the standard deviation)
 
 
 # Convert categorical variables to factors
@@ -221,6 +217,16 @@ life_expectancy_train <- slice_sample(life_expectancy, prop = 0.8)
 life_expectancy_test <- anti_join(life_expectancy, life_expectancy_train)
 
 
+
+# Scale numeric variables for training set
+life_expectancy_train <- life_expectancy_train %>%
+  mutate(across(all_of(numeric_vars), ~ scale(.) %>% as.vector()))  # (scale() scales each numeric variable by substracting the mean and dividing by the standard deviation)
+
+
+# Scale numeric variables for test set
+life_expectancy_test <- life_expectancy_test %>%
+  mutate(across(all_of(numeric_vars), ~ scale(.) %>% as.vector()))  # (scale() scales each numeric variable by substracting the mean and dividing by the standard deviation)
+
 ```
 
 ## 3. Model Exploration (3pt)
@@ -262,7 +268,7 @@ m.1 <- brm(formula.m1,
                family = gaussian(), 
                prior = GelmanEtAl, 
                seed = 123,
-               file = "fits/Bayesian_Group_Assignment_m1")
+               file = paste0(dirpath,"/fits/Bayesian_Group_Assignment_m1"))
 
 m.1
 
@@ -288,7 +294,7 @@ m.2 <- brm(formula.m1,
                family = student(), 
                prior = InformedPriors, 
                seed = 123,
-               file = "fits/Bayesian_Group_Assignment_m2")
+               file = paste0(dirpath,"/fits/Bayesian_Group_Assignment_m2"))
 
 m.2
 
@@ -308,7 +314,7 @@ m.3 <- brm(
   data = life_expectancy_train,
   family = gaussian(), 
   prior = HorseshoePriors, 
-  file = "fits/Bayesian_Group_Assignment_m3",
+  file = paste0(dirpath,"/fits/Bayesian_Group_Assignment_m3"),
   seed = 123)
 
 m.3
@@ -332,7 +338,7 @@ m.4 <- brm(formula.m4,
                data = life_expectancy_train,
                family = gaussian(), 
                prior = GelmanEtAl,
-               file = "fits/Bayesian_Group_Assignment_m4",
+               file = paste0(dirpath,"/fits/Bayesian_Group_Assignment_m4"),
                seed = 123)
 
 m.4
@@ -356,11 +362,10 @@ m.5 <- brm(formula.m5,
   prior = gelman_priors_m5,
   control = list(adapt_delta = .95),
   seed = 123,
-  file = "fits/Bayesian_Group_Assignment_m5"
+  file = paste0(dirpath,"/fits/Bayesian_Group_Assignment_m5")
 )
 
 m.5
-
 ```
 
 b.  Explain each model and describe its structure (what they assume about potential population- level or group-level effects), and the type of priors used.
